@@ -1,54 +1,50 @@
 
 <%@ page import="timurapp.User" %>
-<!DOCTYPE html>
+<!doctype html>
 <html>
-	<head>
-		<meta name="layout" content="main">
-		<g:set var="entityName" value="${message(code: 'user.label', default: 'User')}" />
-		<title><g:message code="default.show.label" args="[entityName]" /></title>
-	</head>
-	<body>
-		<a href="#show-user" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
-		<div class="nav" role="navigation">
-			<ul>
-				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
-				<li><g:link class="list" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
-				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
-			</ul>
-		</div>
-		<div id="show-user" class="content scaffold-show" role="main">
+    <head>
+        <meta name="layout" content="mobile">
+        <g:set var="entityName" value="${message(code: 'user.label', default: 'User')}" />
+        <title><g:message code="default.show.label" args="[entityName]" /></title>
+    </head>
+    <body>
+		<div data-role="header" data-position="fixed">
 			<h1><g:message code="default.show.label" args="[entityName]" /></h1>
+			<div data-role="navbar">
+				<ul>
+					<li><a data-icon="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
+					<li><g:link data-icon="grid" data-ajax="false" action="list"><g:message code="default.list.label" args="[entityName]" /></g:link></li>
+				</ul>
+			</div>
+		</div>
+		<div data-role="content">
 			<g:if test="${flash.message}">
-			<div class="message" role="status">${flash.message}</div>
+			<div class="message">${flash.message}</div>
 			</g:if>
-			<ol class="property-list user">
+			<dl>
 			
-				<g:if test="${userInstance?.name}">
-				<li class="fieldcontain">
-					<span id="name-label" class="property-label"><g:message code="user.name.label" default="Name" /></span>
-					
-						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${userInstance}" field="name"/></span>
-					
-				</li>
-				</g:if>
+				<dt><g:message code="user.id.label" default="Id" /></dt>
+				
+					<dd><g:fieldValue bean="${userInstance}" field="id"/></dd>
+				
 			
-				<g:if test="${userInstance?.password}">
-				<li class="fieldcontain">
-					<span id="password-label" class="property-label"><g:message code="user.password.label" default="Password" /></span>
-					
-						<span class="property-value" aria-labelledby="password-label"><g:fieldValue bean="${userInstance}" field="password"/></span>
-					
-				</li>
-				</g:if>
+				<dt><g:message code="user.name.label" default="Name" /></dt>
+				
+					<dd><g:fieldValue bean="${userInstance}" field="name"/></dd>
+				
 			
-			</ol>
+				<dt><g:message code="user.password.label" default="Password" /></dt>
+				
+					<dd><g:fieldValue bean="${userInstance}" field="password"/></dd>
+				
+			
+			</dl>
 			<g:form>
-				<fieldset class="buttons">
-					<g:hiddenField name="id" value="${userInstance?.id}" />
-					<g:link class="edit" action="edit" id="${userInstance?.id}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
-					<g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
-				</fieldset>
+				<g:hiddenField name="id" value="${userInstance?.id}" />
+				<g:actionSubmit data-icon="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" />
 			</g:form>
 		</div>
-	</body>
+		<div data-role="footer">
+		</div>
+    </body>
 </html>
