@@ -1,10 +1,14 @@
 package timurapp
 
+// TODO pagination
+// TODO security
+// TODO validation
+// TODO actual implementation
 class JobOfferController {
     def list() {
         // Extract query params
 
-        // "accepted" or "offered" (i. e., not yet accepted)
+        // "accepted" or "offered" (i. e., not yet accepted) or "all"
         def status = params.status
         // "asc" or "desc"
         def sort = params.sort
@@ -15,31 +19,6 @@ class JobOfferController {
             action = "listOffers"
             statusParam = status
             sortParam = sort
-        }
-    }
-
-    def addNewOffer() {
-        // Extract parameters that describe the offer
-
-        // id of user that wants to add the offer
-        def userId = params.userId
-        // when the work should be started
-        def startDate = params.startDate
-        // when the work should be finished
-        def completeDate = params.completeDate
-        // details of work
-        def details = params.details
-        // what is the reward for work
-        def reward = params.reward
-
-        render(contentType: "text/json") {
-            result = "Ok"
-            action = "addNewOffer"
-            userIdParam = userId
-            startDateParam = startDate
-            completeDateParam = completeDate
-            detailsParam = details
-            rewardParam = reward
         }
     }
 
