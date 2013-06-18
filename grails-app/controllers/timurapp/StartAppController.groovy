@@ -1,8 +1,13 @@
 package timurapp
 
 class StartAppController {
+    AuthenticationService authenticationService
 
     def index() {
-        redirect(uri: "/index.html")
+        if (authenticationService.isAuthenticated()) {
+            render(view: "/_index")
+        } else {
+            render(view: "/index")
+        }
     }
 }

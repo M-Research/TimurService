@@ -8,7 +8,7 @@ class UrlMappings {
             action = [GET: "details", DELETE: "delete"]
         }
         "/users/$id/offers"(controller: "userCard", parseRequest: true) {
-            action = [GET: "offersList", POST: "addNewOffer"}]
+            action = [GET: "offersList", POST: "addNewOffer"]
         }
         "/offers"(controller: "jobOffer", parseRequest: true) {
             action = [GET: "list"]
@@ -21,8 +21,10 @@ class UrlMappings {
 				// apply constraints here
 			}
 		}
-
-		"/"(view:"/index")
+        "/"(controller: "startApp") {
+            action = [GET: "index"]
+        }
+		"/admin"(view:"/admin")
 		"500"(view:'/error')
 	}
 }
