@@ -25,7 +25,7 @@ environments {
     }
     production {
         dataSource {
-            dbCreate = "update"
+            dbCreate = "create-drop"
             driverClassName = "com.mysql.jdbc.Driver"
             url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true"
             username = "root"
