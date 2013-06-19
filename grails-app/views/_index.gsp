@@ -15,6 +15,7 @@
     <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.core.min.js"></script>
     <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.flipbox.min.js"></script>
     <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/i18n/jquery.mobile.datebox.i18n.en_US.utf8.js"></script>
+    <script src="js/api.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -177,6 +178,9 @@
 
     <!-- TODO: implement -->
     <div data-role="content"> <h1>User profile</h1></div>
+    <!--<script type="text/javascript">
+      getProfile(function (res) {alert(res.email);});
+    </script>-->
 </div>
 
 <div data-role="page" id="addwork">

@@ -1,0 +1,39 @@
+* Resources
+** User
+*** Public info
+    - Name
+    - Photo
+    - Rating
+*** Private info
+    - E-mail
+    - Telephone
+    - Skype
+    - Accepted tasks list
+    - Offered tasks list
+** Task
+*** Public info
+    - Title
+    - Description
+    - Reward
+    - Address
+    - Time
+    - Contacts
+    - Owner
+*** Private info
+    - State (Accepted, Approved, Finished)
+    - Candidates list
+* Actions
+** Create
+   - add new offer
+** Read
+   - particular user profile
+   - offers by particular user
+   - tasks of particular user
+   - list of tasks (with filtering - area, time, state, user that offered)
+** Update
+   - update user profile fields
+   - accept offer
+   - approve candidate for offer
+   - finish task
+** Delete
+   - delete job offer
