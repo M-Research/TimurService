@@ -10,18 +10,8 @@ class AuthenticationService {
     OauthService oauthService
 
     /**
-     * Calls a given function (without arguments) only if user is
-     * authenticated, otherwise redirects to the login page.
+     * Checks whether the current user of application is authenticated.
      */
-    void withAuthentication(Closure f) {
-        Token accessToken = getToken()
-        if (accessToken == null) {
-            redirect(url: "/")
-        } else {
-            f.call()
-        }
-    }
-
     boolean isAuthenticated() {
         getToken() != null
     }
@@ -29,16 +19,21 @@ class AuthenticationService {
     /**
      * Retrieves the e-mail of currently authenticated user.
      */
-    Object getMail() {
-        Token accessToken = getToken()
-        if (accessToken != null) {
-            def response = oauthService.getGoogleResource(
-                accessToken,
-                'https://www.googleapis.com/oauth2/v1/userinfo?alt=json'
-            )
-            JSONObject userJson = JSON.parse(response.body)
-            userJson['email']
+    String getMail() {
+        def session = WebUtils.retrieveGrailsWebRequest().getSession()
+        def email = session['email']
+        if (!email) {
+            Token accessToken = getToken()
+            if (accessToken) {
+                def response = oauthService.getGoogleResource(
+                    accessToken,
+                    'https://www.googleapis.com/oauth2/v1/userinfo?alt=json'
+                )
+                JSONObject userJson = JSON.parse(response.body)
+                email = session['email'] = userJson['email']
+            }
         }
+        email
     }
 
     /**
