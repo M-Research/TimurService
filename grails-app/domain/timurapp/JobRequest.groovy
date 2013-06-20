@@ -1,12 +1,21 @@
 package timurapp
 
-class JobRequest {
+class JobRequest implements Serializable {
+
+    static String STATUS_PENDING = "PENDGING"
+    static String STATUS_ACCEPTED = "ACCEPTED"
+    static String STATUS_DISMISSED = "DISMISSED"
+
 
     Job job
-    User user
+    User candidate
+    String status = STATUS_PENDING
     Date dateCreated
+    String comment
     static constraints = {
-        job(unique: true)
-        user(unique: true)
+        comment(nullable: true)
+    }
+    static mapping = {
+        id composite:['job', 'candidate']
     }
 }

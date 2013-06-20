@@ -62,10 +62,17 @@ grails.hibernate.cache.queries = false
 environments {
     development {
         grails.logging.jul.usebridge = true
+        oauth.providers.google.key = '46721523906-pfe91bmp8gll3e476eodrar9mk3i45so.apps.googleusercontent.com'
+        oauth.providers.google.secret = '6sUpontK-Q4NWoQLyOhayB1G'
+        oauth.providers.google.callback = "http://localhost:8080/TimurApp/oauth/google/callback"
+
     }
     production {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
+        oauth.providers.google.key = '157936524178-u5cd0kk87cu77t5k81l86ppo5c058e8c.apps.googleusercontent.com'
+        oauth.providers.google.secret = 'w1Jtn_MQxzLZGaJGfGtgp3GH'
+        oauth.providers.google.callback = "http://geojobs.aws.af.cm/oauth/google/callback"
     }
 }
 
@@ -90,15 +97,16 @@ log4j = {
            'net.sf.ehcache.hibernate'
 }
 
+
 oauth {
     providers {
         google {
             api = org.scribe.builder.api.GoogleApi
             // TODO should be changed
-            key = '157936524178-u5cd0kk87cu77t5k81l86ppo5c058e8c.apps.googleusercontent.com'
-            secret = 'w1Jtn_MQxzLZGaJGfGtgp3GH'
+            //key = oauth_key
+            //secret = oauth_secret
             scope = 'https://www.googleapis.com/auth/userinfo.email'
-            callback = "http://geojobs.aws.af.cm/oauth/google/callback"
+            //callback = oauth_callback
             successUri = '/'
             //failureUri = '/your/failure/page'
         }

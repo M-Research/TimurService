@@ -1,5 +1,7 @@
 package timurapp
 
+import org.codehaus.groovy.grails.web.json.JSONObject
+
 class UserController {
     AuthenticationService authenticationService
 
@@ -9,9 +11,43 @@ class UserController {
             User user = User.findByEmail(userEmail)
             if (user) {
                 render(contentType: "text/json", encoding: "UTF-8") {
-                    profile(email: user.email, rating: user.rating,
+                    [email: user.email, rating: user.getRating(),
                             name: user.name, phone: user.phone,
-                            skype: user.skype, photo: user.photoUrl)
+                            skype: user.skype, photo: user.photoUrl
+                    ]
+                }
+            } else {
+                render(status: 404, contentType: "text/json", encoding: "UTF-8")
+            }
+        }
+    }
+    def candidateProfile() {
+        withAuthentication {
+            def userEmail = authenticationService.getMail()
+            User user = User.findByEmail(userEmail)
+            if (user) {
+
+                def toRender = [error:"Not enough params"]
+                if(request.JSON!=null ){
+                    JSONObject obj = request.JSON
+                    if(obj.containsKey("candidate_id")){
+                        int candidate_id = obj.get("candidate_id")
+
+                        User candidate = User.findById(candidate_id);
+                        if(candidate!=null){
+                            toRender = [email: candidate.email, rating: candidate.getRating(),
+                                    name: candidate.name, phone: candidate.phone,
+                                    skype: candidate.skype, photo: candidate.photoUrl]
+                        }else{
+                            toRender = [error:"No such user"]
+                        }
+
+                    }
+                }
+
+
+                render(contentType: "text/json", encoding: "UTF-8") {
+                     toRender
                 }
             } else {
                 render(status: 404, contentType: "text/json", encoding: "UTF-8")
@@ -25,20 +61,19 @@ class UserController {
             def userEmail = authenticationService.getMail()
             User user = User.findByEmail(userEmail)
             if (user) {
-                user.jobs.add(new Job(title:"Новая работа", description: "Тратата", reward: 3,address: "Подол, у фонтана"));
+                //user.refresh();
                 render(contentType: "text/json", encoding: "UTF-8") {
-                    profile(jobs:
-                        user.jobs.collect{
-                            Job a -> [name: a.title, reward:a.reward]
-                        }
-                    )
+                    Job.findAllByUser(user,[sort:"dateCreated",order:"desc"]).collect{
+                            Job a -> [id:a.id,name: a.title, reward:a.reward, longitude:a.longitude,
+                                     latitude:a.latitude,details:a.description,status:a.status,contact:a.user.getContact()]
+                    }
                 }
             } else {
                 render(status: 404, contentType: "text/json", encoding: "UTF-8")
             }
         }
     }
-    def openJobs()
+    def openedJobs()
     {
         withAuthentication {
             def userEmail = authenticationService.getMail()
@@ -49,11 +84,12 @@ class UserController {
                 //jb.save();
                 //def res = Job.findByTitle("Новая работа");
                 render(contentType: "text/json", encoding: "UTF-8") {
-                    availableJobs(jobs:
-                            Job.findAllByStatus(Job.STATUS_OPEN).collect{
-                                Job a -> [id:a.id,name: a.title, reward:a.reward]
-                            },
-                    )
+                            Job.findAllByStatus(Job.STATUS_OPEN,[sort:"dateCreated",order:"desc"]).collect{
+                                Job a -> [id:a.id,name: a.title, reward:a.reward, longitude:a.longitude,
+                                          latitude:a.latitude,details:a.description,status:a.status,
+                                          contact:a.user.getContact(),
+                                          user_rating:a.user.getRating()]
+                            }
                 }
             } else {
                 render(status: 404, contentType: "text/json", encoding: "UTF-8")
