@@ -3,6 +3,7 @@ package timurapp
 class StartAppController {
     AuthenticationService authenticationService
 
+
     def index() {
         if (authenticationService.isAuthenticated()) {
             // save user to DB if not yet present

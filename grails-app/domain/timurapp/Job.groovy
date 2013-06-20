@@ -22,9 +22,9 @@ class Job {
 
     double longitude,latitude
     int geozoom
-    static hasMany = [voluntures:User]
 
-    static belongsTo = User
+    static hasMany = [voluntures:User]
+    static belongsTo = [user: User]
 
     static constraints = {
          geozoom nullable:true

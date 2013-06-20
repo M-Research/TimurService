@@ -95,10 +95,10 @@ oauth {
         google {
             api = org.scribe.builder.api.GoogleApi
             // TODO should be changed
-            key = '157936524178-u5cd0kk87cu77t5k81l86ppo5c058e8c.apps.googleusercontent.com'
-            secret = 'w1Jtn_MQxzLZGaJGfGtgp3GH'
+            key = '46721523906-pfe91bmp8gll3e476eodrar9mk3i45so.apps.googleusercontent.com'
+            secret = '6sUpontK-Q4NWoQLyOhayB1G'
             scope = 'https://www.googleapis.com/auth/userinfo.email'
-            callback = "http://geojobs.aws.af.cm/oauth/google/callback"
+            callback = "http://localhost:8080/TimurApp/oauth/google/callback"
             successUri = '/'
             //failureUri = '/your/failure/page'
         }

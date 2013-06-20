@@ -9,7 +9,7 @@ class User {
     double rating = 3.0
 
     static hasMany = [jobs:Job, jobOffers:JobRequest]
-
+    static mappedBy = [jobs: "user"]
 
 
     static constraints = {
