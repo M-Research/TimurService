@@ -33,7 +33,7 @@ class UserController {
                 user.skype = params.skype
                 user.photoUrl = params.photoUrl
                 user.save(flush: true)
-                render(contentType: "text/json", encoding: "UTF-8") { [ok] }
+                render(contentType: "text/json", encoding: "UTF-8", status: 200)
             } else {
                 render(status: 404, contentType: "text/json", encoding: "UTF-8")
             }

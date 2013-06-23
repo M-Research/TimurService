@@ -10,11 +10,13 @@
 
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
-    <script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
+    <script src="http://maps.google.com/maps/api/js?libraries=places&sensor=true" type="text/javascript"></script>
     <script src="ui/min/jquery.ui.map.full.min.js" type="text/javascript"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/geo-location-javascript/0.4.8/geo-min.js"
             type="text/javascript"></script>
     <script type="text/javascript" src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.core.min.js"></script>
+    <script type="text/javascript"
+            src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.datebox.min.js"></script>
     <script type="text/javascript"
             src="http://dev.jtsage.com/cdn/datebox/latest/jqm-datebox.mode.flipbox.min.js"></script>
     <script type="text/javascript"
@@ -47,6 +49,9 @@
     <!--TODO: add loading-->
     <div data-role="content" id="map_canvas">
         <div data-role="popup" id="details">
+            <a href="#" data-rel="back" data-role="button" data-theme="a"
+               data-icon="delete" data-iconpos="notext"
+               class="ui-btn-right">Close</a>
             <h4 id="detTitle">
                 Title:
             </h4>
@@ -58,6 +63,9 @@
             </h4>
             <h4 id="det_address">
                 Address:
+            </h4>
+            <h4 id="det_valid_until">
+              Valid until:
             </h4>
 
             <input type="submit" data-theme="a" data-icon="check" data-iconpos="left"
@@ -129,39 +137,48 @@
     <!-- /header -->
 
     <!-- TODO: implement -->
+    <script type="text/javascript">
+        $("#addwork").on('pageshow', initPlacesAutocomplete);
+    </script>
+
     <div data-role="content">
         <div data-role="fieldcontain">
-            <label for="textinput1">
-                Name
+            <label for="new_task_title">
+                Title
             </label>
-            <input name="" id="textinput1" placeholder="" value="" type="text">
+            <input name="" id="new_task_title" placeholder="" value="" type="text">
         </div>
 
         <div data-role="fieldcontain">
-            <label for="textarea5">
+            <label for="new_task_description">
                 Description
             </label>
-            <textarea name="" id="textarea5" placeholder=""></textarea>
+            <textarea name="" id="new_task_description" placeholder=""></textarea>
         </div>
 
         <div data-role="fieldcontain">
-            <label for="textinput3">
-                Salary
+            <label for="new_task_reward">
+                Reward
             </label>
-            <input name="" id="textinput3" placeholder="" value="" type="text">
+            <input name="" id="new_task_reward" placeholder="" value="" type="text">
         </div>
 
-        <label for="mydate">Some Date</label>
-        <input name="mydate" id="mydate" type="date" data-role="datebox"
+        <div data-role="fieldcontain">
+            <label for="new_task_location">
+                Address
+            </label>
+            <input name="" id="new_task_location" placeholder="" value="" type="text">
+        </div>
+
+        <label for="new_task_valid_date">Date</label>
+        <input name="new_task_valid_date" id="new_task_valid_date"
+               type="date" data-role="datebox"
+               data-options='{"mode": "datebox"}'>
+        <label for="new_task_valid_time">Time</label>
+        <input name="new_task_valid_time" id="new_task_valid_time"
+               type="date" data-role="datebox"
                data-options='{"mode": "timeflipbox", "overrideTimeFormat": 24}'>
 
-        <script type="text/javascript">
-            function addWork() {
-                getProfile(function (res) {
-                    alert(res.name)
-                });
-            }
-        </script>
 
         <input type="submit" data-icon="plus" data-iconpos="left" value="Add "
                onclick="addWork()"/>

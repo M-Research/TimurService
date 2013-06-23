@@ -1,6 +1,5 @@
 package timurapp
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
 import groovy.json.JsonSlurper
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -12,27 +11,39 @@ class JobController {
             def userEmail = authenticationService.getMail()
             User user = User.findByEmail(userEmail)
             if (user) {
-                def toRender = [error:"Not enough params"]
-                if(request.JSON!=null ){
+                def toRender = []
+                def status = 422
+                if (request.JSON != null) {
                     JSONObject obj = request.JSON
-                    if(obj.containsKey("title")){
-                        def title = obj.get("title")
-                        def desc = obj.get("description")
-                        def reward = obj.get("reward")
-                        def address = obj.get("address")
-                        def lon = obj.get("lon")
-                        def lat = obj.get("lat")
+                    def title = obj?.title
+                    def desc = obj?.description
+                    def reward = obj?.reward
+                    def address = obj?.address
+                    def date = obj?.date
+                    def time = obj?.time
+                    def lon = obj?.lon
+                    def lat = obj?.lat
 
-                        Job jb =  new Job(title:title, description: desc, reward: reward,address: address,
-                                            validUntil: new Date(),longitude: lon,latitude: lat);
+                    if (title && desc && reward && address && lon &&
+                        lat && date && time) {
+                        // TODO timezone
+                        def validUntil = Date.parse(
+                            "MM/dd/yyyy K:m a", "${date} ${time}")
+                        Job jb =  new Job(title:title, description: desc,
+                                          reward: reward,
+                                          address: address,
+                                          validUntil: validUntil,
+                                          longitude: lon, latitude: lat);
                         user.jobs.add(jb);
                         jb.user = user;
+                        jb.save();
                         user.save(flush:true);
-                        toRender = [job:"Created successfully"]
-                     }
+                        status = 200
+                    }
                 }
 
-                render(contentType: "text/json", encoding: "UTF-8") {
+                render(contentType: "text/json", encoding: "UTF-8",
+                       status: status) {
                     toRender
                 }
             } else {
@@ -178,7 +189,7 @@ class JobController {
     }
 
 
-    def list(){
+    def list() {
         withAuthentication {
             def userEmail = authenticationService.getMail()
             User user = User.findByEmail(userEmail)
@@ -198,10 +209,12 @@ class JobController {
                     //request.JSON
                     //idsss(id:id)
                     Job.findAll(sort:"dateCreated", order: "desc").collect{
-                        Job a -> [id:a.id,name: a.title, reward:a.reward, longitude:a.longitude,latitude:a.latitude,
-                                details:a.description,
-                                status:a.status,
-                                contact:a.user.getContact()]
+                        Job a -> [id:a.id, title: a.title, reward:a.reward,
+                                  longitude:a.longitude, latitude:a.latitude,
+                                  description: a.description,
+                                  address: a.address,
+                                  status: a.status, validUntil: a.validUntil,
+                                  contact: a.user.getContact()]
                     }
                 }
             } else {

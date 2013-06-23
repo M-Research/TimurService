@@ -1,33 +1,55 @@
 if (typeof jQuery !== 'undefined') {
     /**
+     * ------------------------------ API ------------------------------
+     */
+
+    /**
      * Calls the given function on the received user's profile (object with
      * fields email, rating, name, phone, skype, photo).
      */
     function getProfile(f) {
-        apiCall("GET", "api/user", function (result) {
-            f(result.profile);
+        apiCall("GET", "user/profile", function (result) {
+            f(result);
         });
     }
 
     /**
-     * Generic call to the API. Executes given function on the result of given
-     * method that was invoked given HTTP method.
+     * Creates a new job offer described in given offerData and calls the
+     * given callback on received result. Result is either empty or failure
+     * status code:
+     *     401 - if authorization is failed
+     *     422 - if arguments are incorrect or absent
      */
-    function apiCall(httpMethod, apiMethod, f) {
+    function createJobOffer(offerData, callback) {
+        apiCall("POST", "job/create", function (result) {
+            callback(result);
+        }, offerData);
+    }
+
+    /**
+     * Generic call to the API. Executes given function on the result of given
+     * method that was invoked with given HTTP method OR on the status code of
+     * failed request.
+     */
+    function apiCall(httpMethod, apiMethod, f, data) {
         $.ajax({
             type: httpMethod,
             url: apiMethod,
+            data: JSON.stringify(data),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function callFunction(result) {
                 f(result);
             },
-            error: function (xhr, status, error) {
-                // TODO handle error
-                alert(error.toString());
+            error: function (xhr) {
+                f(xhr.status);
             }
         });
     }
+
+    /**
+     * ------------------------------ Map ------------------------------
+     */
 
     var STATUS_OPEN = "OPENED";
     var STATUS_APPROVED = "APPROVED";
@@ -35,19 +57,19 @@ if (typeof jQuery !== 'undefined') {
     var STATUS_CANCELED = "CANCELED";
 
     function getIconForStatus(status) {
-        var baseURL = 'http://cdn.edit.g.imapbuilder.net/images/markers/'
-        var suff = ''
+        var baseURL = 'http://cdn.edit.g.imapbuilder.net/images/markers/';
+        var suff = '';
         if (status == STATUS_OPEN) {
-            suff = 5
+            suff = 5;
         } else if (status == STATUS_APPROVED){
-            suff = 3
+            suff = 3;
         } else if (status == STATUS_DONE){
-            suff = 15
+            suff = 15;
         } else if (status == STATUS_CANCELED){
-            suff = 46
+            suff = 46;
         }
 
-        return baseURL + suff.toString()
+        return baseURL + suff.toString();
     }
     //http://cdn.edit.g.imapbuilder.net/images/markers/54
     //3-gr, 5-blue, 15-red, 46-sign
@@ -72,26 +94,28 @@ if (typeof jQuery !== 'undefined') {
                 );
             }
         } else {
-            positionRetrievalSuccess(getDefaultCoordinates())
+            positionRetrievalSuccess(getDefaultCoordinates());
             alert("Location is not accurate");
         }
     }
 
-    function getInfoWindowContent(job){
-        var html = "Details: " + job.name + " </br> Reward: " + job.reward + "</br>" +
+    function getInfoWindowContent(job) {
+        var html = "Title: " + job.title + " </br> Reward: " + job.reward + "</br>" +
             "<a href=\"#details\" data-rel=\"popup\" data-transition=\"pop\" data-position-to=\"window\" data-inline=\"true\">Show details</a>";
-        $('#detTitle').text("Title: " + job.name)
-        $('#det_desc').text("Description: " + job.desc)
-        $('#det_address').text("Address: " + job.address)
-        $('#det_rew').text("Reward: " + job.reward)
+        $('#detTitle').text("Title: " + job.title);
+        $('#det_desc').text("Description: " + job.description);
+        $('#det_address').text("Address: " + job.address);
+        $('#det_rew').text("Reward: " + job.reward);
+        // TODO render date
+        $('#det_valid_until').text("Valid until: " + job.validUntil);
         return html;
     }
 
     function populateMarkersWithJobs(){
         $.getJSON('job/list', function (data) {
             $.each(data, function (index, element) {
-                console.log(element)
-                job = element
+                console.log(element);
+                job = element;
                 var tmpPos = new google.maps.LatLng(job.latitude, job.longitude);
                 $('#map_canvas').gmap('addMarker', { 'position': tmpPos, 'icon':  getIconForStatus(job.status)}
                 ).click(function () {
@@ -119,13 +143,73 @@ if (typeof jQuery !== 'undefined') {
 
     function positionRetrievalError(error) {
         console.log("Something went wrong: ", error);
-        positionRetrievalSuccess(getDefaultCoordinates())
+        positionRetrievalSuccess(getDefaultCoordinates());
         alert("Location is not accurate");
     }
 
+    /**
+     * Return the default location for the case when browser supports
+     * the Geolocation API or GPS is not available
+     */
+    function getDefaultCoordinates() {
+
+        var coords = {
+            latitude: 50.454007,
+            longitude: 30.526199
+        };
+
+        var position = {
+            coords: coords
+        };
+
+        return position;
+    }
+
+    /**
+     * ------------------------ New job creation -----------------------
+     */
+    // TODO remove global state
+    var autocomplete;
+
+    function initPlacesAutocomplete() {
+        var input = document.getElementById('new_task_location');
+        //var input = $('#new_task_location');
+        var options = {};
+        autocomplete = new google.maps.places.Autocomplete(input, options);
+    }
+
+    function addWork() {
+        var request = {};
+        request['title'] = $('#new_task_title').val();
+        request['description'] = $('#new_task_description').val();
+        request['reward'] = $('#new_task_reward').val();
+        request['address'] = $('#new_task_location').val();
+        request['date'] = $('#new_task_valid_date').val();
+        request['time'] = $('#new_task_valid_time').val();
+        var place = autocomplete.getPlace();
+        var latitude = place.geometry.location.lat();
+        var longitude = place.geometry.location.lng();
+        request['lon'] = longitude;
+        request['lat'] = latitude;
+        createJobOffer(request, function (res) {
+            switch (res) {
+                case 422:
+                    alert("Provided data is incorrect.");
+                    break;
+                default:
+                    alert("Task added successfully.");
+                    break;
+            }
+        });
+    }
+
+    /**
+     * ---------------------------- Profile ----------------------------
+     */
+
     function initProfileForm() {
-        $.getJSON('user/profile', function (res) {
-            console.log(res)
+        getProfile(function (res) {
+            console.log(res);
             if (res.name) {
                 $('#profile_name').val(res.name);
             }
@@ -141,24 +225,4 @@ if (typeof jQuery !== 'undefined') {
             $('#profile_email').val(res.email);
         });
     }
-
-    /**
-     * Return the default location for the case when browser supports
-     * the Geolocation API or GPS is not available
-     */
-    function getDefaultCoordinates() {
-
-        var coords = {
-            latitude: 50.454007,
-            longitude: 30.526199
-        }
-
-        var position = {
-            coords: coords
-        }
-
-        return position;
-    }
-
-
 }
