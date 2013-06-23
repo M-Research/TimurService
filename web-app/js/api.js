@@ -26,4 +26,23 @@ if (typeof jQuery !== 'undefined') {
             }
         });
     }
+
+    /**
+     * Return the default location for the case when browser supports
+     * the Geolocation API or GPS is not available
+     */
+    function getDefaultCoordinates() {
+
+        var coords = {
+            latitude: 50.454007,
+            longitude:30.526199
+        }
+
+        var position = {
+            coords : coords
+        }
+
+        return position;
+    }
+
 }
