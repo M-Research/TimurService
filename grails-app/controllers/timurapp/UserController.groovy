@@ -21,6 +21,25 @@ class UserController {
             }
         }
     }
+
+    //FIXME: test version
+    def changeProfile(){
+        withAuthentication {
+            def userEmail = authenticationService.getMail()
+            User user = User.findByEmail(userEmail)
+            if (user) {
+                user.name = params.name
+                user.phone = params.phone
+                user.skype = params.skype
+                user.photoUrl = params.photoUrl
+                user.save(flush: true)
+                render(contentType: "text/json", encoding: "UTF-8") { [ok] }
+            } else {
+                render(status: 404, contentType: "text/json", encoding: "UTF-8")
+            }
+        }
+    }
+
     def candidateProfile() {
         withAuthentication {
             def userEmail = authenticationService.getMail()

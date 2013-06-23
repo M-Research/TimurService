@@ -10,13 +10,13 @@ html, body {
 
 /*specify a height for the header so we can line-up the elements, the default is 40px*/
 #map-page .ui-header {
-    height : 40px;
+    height : 120px;
 }
 
 /*set the content to be full-width and height except it doesn't overlap the header or footer*/
 #map-page .ui-content {
     position : absolute;
-    top      : 40px;
+    top      : 120px;
     right    : 0;
     bottom   : 0;
     /*bottom   : 40px;*/
