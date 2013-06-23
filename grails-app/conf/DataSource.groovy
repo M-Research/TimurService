@@ -17,7 +17,7 @@ environments {
             driverClassName = "com.mysql.jdbc.Driver"
             url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true"
             username = "root"
-            password = "deldel"
+            password = "271828183"
         }
     }
     test {
@@ -32,7 +32,7 @@ environments {
             driverClassName = "com.mysql.jdbc.Driver"
             url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true"
             username = "root"
-            password = "deldel"
+            password = "271828183"
         }
     }
 }
