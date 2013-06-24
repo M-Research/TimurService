@@ -66,21 +66,21 @@ if (typeof jQuery !== 'undefined') {
     var STATUS_CANCELED = "CANCELED";
 
     /**
-    * gets the icon for a job
-    * @param status of the job
-    * @returns {url pointing to the icon}
-    */
+     * gets the icon for a job
+     * @param status of the job
+     * @returns {url pointing to the icon}
+     */
 
     function getIconForStatus(status) {
         var baseURL = 'http://cdn.edit.g.imapbuilder.net/images/markers/';
         var suff = '';
         if (status == STATUS_OPEN) {
             suff = 5;
-        } else if (status == STATUS_APPROVED){
+        } else if (status == STATUS_APPROVED) {
             suff = 3;
-        } else if (status == STATUS_DONE){
+        } else if (status == STATUS_DONE) {
             suff = 15;
-        } else if (status == STATUS_CANCELED){
+        } else if (status == STATUS_CANCELED) {
             suff = 46;
         }
 
@@ -136,15 +136,15 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
-    * puts markers with all jobs on the map
-    */
-    function populateMarkersWithJobs(){
+     * puts markers with all jobs on the map
+     */
+    function populateMarkersWithJobs() {
         $.getJSON('job/list', function (data) {
             $.each(data, function (index, element) {
                 console.log(element);
                 job = element;
                 var tmpPos = new google.maps.LatLng(job.latitude, job.longitude);
-                $('#map_canvas').gmap('addMarker', { 'position': tmpPos, 'icon':  getIconForStatus(job.status)}
+                $('#map_canvas').gmap('addMarker', { 'position': tmpPos, 'icon': getIconForStatus(job.status)}
                 ).click(function () {
                         $('#map_canvas').gmap('openInfoWindow', {'content': getInfoWindowContent(element)}, this);
                     });
@@ -174,9 +174,9 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
-    * error handling, initialize the map with default coordinates
-    * @param error
-    */
+     * error handling, initialize the map with default coordinates
+     * @param error
+     */
     function positionRetrievalError(error) {
         console.log("Something went wrong: ", error);
         positionRetrievalSuccess(getDefaultCoordinates());
@@ -221,7 +221,7 @@ if (typeof jQuery !== 'undefined') {
         var request = {}
         request["id"] = $("#det_job_id").val();
         onCreateJobRequest(request, function (res) {
-            if (res.error){
+            if (res.error) {
                 alert(res.error)
             } else if (res.jobrequest) {
                 alert(res.jobrequest)
@@ -241,7 +241,10 @@ if (typeof jQuery !== 'undefined') {
     function initPlacesAutocomplete() {
         var input = document.getElementById('new_task_location');
         //var input = $('#new_task_location');
-        var options = {};
+        var options = {
+            types: ['geocode']
+        };
+
         autocomplete = new google.maps.places.Autocomplete(input, options);
     }
 
@@ -250,23 +253,27 @@ if (typeof jQuery !== 'undefined') {
         request['title'] = $('#new_task_title').val();
         request['description'] = $('#new_task_description').val();
         request['reward'] = $('#new_task_reward').val();
-        request['address'] = $('#new_task_location').val();
+        var address = $('#new_task_location').val();
+        request['address'] = address;
         request['date'] = $('#new_task_valid_date').val();
         request['time'] = $('#new_task_valid_time').val();
         var place = autocomplete.getPlace();
-        var latitude = place.geometry.location.lat();
-        var longitude = place.geometry.location.lng();
-        request['lon'] = longitude;
-        request['lat'] = latitude;
-        createJobOffer(request, function (res) {
-            switch (res) {
-                case 422:
-                    alert("Provided data is incorrect.");
-                    break;
-                default:
-                    alert("Task added successfully.");
-                    break;
-            }
+        console.log(address);
+        codeAddress(address, function (location) {
+            var latitude = location.lat();
+            var longitude = location.lng();
+            request['lon'] = longitude;
+            request['lat'] = latitude;
+            createJobOffer(request, function (res) {
+                switch (res) {
+                    case 422:
+                        alert("Provided data is incorrect.");
+                        break;
+                    default:
+                        alert("Task added successfully.");
+                        break;
+                }
+            });
         });
     }
 
@@ -294,8 +301,8 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
-    * submits the Profile form
-    */
+     * submits the Profile form
+     */
     function submitProfileForm() {
         var name = $("#profile_name").val()
         var email = $("#profile_email").val()
