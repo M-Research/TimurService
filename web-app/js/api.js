@@ -235,8 +235,8 @@ if (typeof jQuery !== 'undefined') {
     /**
      * ------------------------ New job creation -----------------------
      */
-    // TODO remove global state
-    var autocomplete;
+
+    // var autocomplete;
 
     function initPlacesAutocomplete() {
         var input = document.getElementById('new_task_location');
@@ -245,7 +245,7 @@ if (typeof jQuery !== 'undefined') {
             types: ['geocode']
         };
 
-        autocomplete = new google.maps.places.Autocomplete(input, options);
+        var autocomplete = new google.maps.places.Autocomplete(input, options);
     }
 
     function addWork() {
@@ -257,7 +257,7 @@ if (typeof jQuery !== 'undefined') {
         request['address'] = address;
         request['date'] = $('#new_task_valid_date').val();
         request['time'] = $('#new_task_valid_time').val();
-        var place = autocomplete.getPlace();
+        //var place = autocomplete.getPlace();
         console.log(address);
         codeAddress(address, function (location) {
             var latitude = location.lat();
