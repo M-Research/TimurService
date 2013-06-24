@@ -15,7 +15,7 @@ environments {
         dataSource {
             dbCreate = "create-drop"
             driverClassName = "com.mysql.jdbc.Driver"
-            url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true"
+            url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true&useUnicode=true&characterEncoding=UTF-8"
             username = "root"
             password = "271828183"
         }
@@ -30,7 +30,7 @@ environments {
         dataSource {
             dbCreate = "create-drop"
             driverClassName = "com.mysql.jdbc.Driver"
-            url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true"
+            url = "jdbc:mysql://localhost:3306/timurprod?autoreconnect=true&useUnicode=true&characterEncoding=UTF-8"
             username = "root"
             password = "271828183"
         }

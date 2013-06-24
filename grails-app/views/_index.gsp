@@ -60,6 +60,10 @@
                 Address:
             </h4>
 
+            <h4 id="det_contacts">
+                Contacts:
+            </h4>
+
             <input type="submit" data-theme="a" data-icon="check" data-iconpos="left"
                    value="Accept" onClick="$.mobile.changePage('#map-page') ">
         </div>
@@ -80,9 +84,7 @@
                 <li><a href="#notifications">Notifications</a></li>
             </ul>
         </div>
-        <!-- /navbar -->
     </div>
-    <!-- /header -->
 
     <!-- TODO: implement -->
     <div data-role="content"><h1>Empty list of added works</h1></div>
@@ -102,9 +104,7 @@
                 <li><a href="#notifications">Notifications</a></li>
             </ul>
         </div>
-        <!-- /navbar -->
     </div>
-    <!-- /header -->
 
     <!-- TODO: implement -->
     <div data-role="content"><h1>Empty list of accepted works</h1></div>
@@ -124,47 +124,39 @@
                 <li><a href="#notifications">Notifications</a></li>
             </ul>
         </div>
-        <!-- /navbar -->
     </div>
-    <!-- /header -->
 
     <!-- TODO: implement -->
     <div data-role="content">
         <div data-role="fieldcontain">
-            <label for="textinput1">
-                Name
-            </label>
-            <input name="" id="textinput1" placeholder="" value="" type="text">
+            <label for="task_name"> Name </label>
+            <input name="" id="task_name" placeholder="" value="" type="text" />
         </div>
 
         <div data-role="fieldcontain">
-            <label for="textarea5">
-                Description
-            </label>
-            <textarea name="" id="textarea5" placeholder=""></textarea>
+            <label for="task_details"> Description </label>
+            <textarea name="" id="task_details" placeholder=""></textArea>
         </div>
 
         <div data-role="fieldcontain">
-            <label for="textinput3">
-                Salary
-            </label>
-            <input name="" id="textinput3" placeholder="" value="" type="text">
+            <label for="task_reward"> Reward </label>
+            <input name="" id="task_reward" placeholder="" value="" type="text" />
         </div>
 
-        <label for="mydate">Some Date</label>
-        <input name="mydate" id="mydate" type="date" data-role="datebox"
+        <div data-role="fieldcontain">
+            <label for="task_address"> Address </label>
+            <input name="" id="task_address" placeholder="" value="" type="text" />
+        </div>
+
+        <label for="task_due_date">Due date</label>
+        <input name="mydate" id="task_due_date" type="date" data-role="datebox"
+           data-options='{"mode": "flipbox", "overrideTimeFormat": 24}'>
+
+        <label for="task_due_time">Due Time</label>
+        <input name="mydate" id="task_due_time" type="date" data-role="datebox"
                data-options='{"mode": "timeflipbox", "overrideTimeFormat": 24}'>
 
-        <script type="text/javascript">
-            function addWork() {
-                getProfile(function (res) {
-                    alert(res.name)
-                });
-            }
-        </script>
-
-        <input type="submit" data-icon="plus" data-iconpos="left" value="Add "
-               onclick="addWork()"/>
+        <input type="submit" data-icon="plus" data-iconpos="left" value="Add " onclick="addWork()"/>
     </div>
 
 </div>
@@ -212,23 +204,8 @@
             <input name="" id="profile_skype" placeholder="" value="" type="text">
         </div>
 
-        <input type="submit" data-icon="plus" data-iconpos="left" value="Update " onclick="submitG()"/>
+        <input type="submit" data-icon="plus" data-iconpos="left" value="Update " onclick="submitProfileForm()"/>
 
-        <script>
-            function submitG() {
-                var name = $("#profile_name").val()
-                var email = $("#profile_email").val()
-                var phone = $("#profile_phone").val()
-                var skype = $("#profile_skype").val()
-
-                $.post("user/changeProfile",
-                        {name: name, email: email, phone: phone, skype: skype })
-                        .done(function (data) {
-                            alert("Profile Updated");
-                        });
-            }
-            ;
-        </script>
     </div>
 </div>
 

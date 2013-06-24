@@ -22,9 +22,15 @@ class JobController {
                         def address = obj.get("address")
                         def lon = obj.get("lon")
                         def lat = obj.get("lat")
+                        def validUntil;
+                        if (obj.containsKey("validUntil")) {
+                            validUntil = new Date(obj.get("validUntil"));
+                        } else {
+                            validUntil = new Date()
+                        }
 
                         Job jb =  new Job(title:title, description: desc, reward: reward,address: address,
-                                            validUntil: new Date(),longitude: lon,latitude: lat);
+                                            validUntil: validUntil,longitude: lon,latitude: lat);
                         user.jobs.add(jb);
                         jb.user = user;
                         user.save(flush:true);
@@ -200,6 +206,7 @@ class JobController {
                     Job.findAll(sort:"dateCreated", order: "desc").collect{
                         Job a -> [id:a.id,name: a.title, reward:a.reward, longitude:a.longitude,latitude:a.latitude,
                                 details:a.description,
+                                address: a.address,
                                 status:a.status,
                                 contact:a.user.getContact()]
                     }
