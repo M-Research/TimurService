@@ -88,7 +88,7 @@ if (typeof jQuery !== 'undefined') {
     }
 
     var locationMarker = null;
-
+    var errorLocationShown = false;
     /**
      * initializes the map
      */
@@ -112,7 +112,10 @@ if (typeof jQuery !== 'undefined') {
             }
         } else {
             positionRetrievalSuccess(getDefaultCoordinates());
-            alert("Location is not accurate");
+            if (!errorLocationShown){
+                alert("Location is not accurate");
+                errorLocationShown = true;
+            }
         }
     }
 
@@ -153,6 +156,38 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
+     * gets address (readable) for a given coordinates
+     * @param location (Latitude + Longitude)
+     */
+    function findLocation(location) {
+        $('#map_canvas').gmap('search', {'location': location}, function (results, status) {
+            if (status === 'OK') {
+                var address = results[0].formatted_address;
+                $('<div>').simpledialog2({
+                    mode: 'button',
+                    headerText: false,
+                    headerClose: false,
+                    buttonPrompt: 'Do you want to add new task here?',
+                    buttons : {
+                        'OK': {
+                            click: function () {
+                                $.mobile.changePage('#addwork');
+                                $("#new_task_location").val(address);
+                            }
+                        },
+                        'Cancel': {
+                            click: function () {},
+                            icon: "delete",
+                            theme: "c"
+                        }
+                    }
+                })
+            }
+        });
+    }
+
+
+    /**
      * callback when position is retrieved either from GeoLocation API
      * or through the GPS (available on the supported devices)
      * @param position
@@ -163,11 +198,16 @@ if (typeof jQuery !== 'undefined') {
         }
         console.log("Initial Position Found");
         var yourStartLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        $('#map_canvas').gmap({'center': yourStartLatLng, 'zoom': 16, 'mapTypeControl': false}).
+            bind('init', function (event, map) {
+                $('#map_canvas').gmap('addMarker', {
+                    'position': yourStartLatLng,
+                    'icon': 'http://cdn.edit.g.imapbuilder.net/images/markers/54'
+                });
 
-        $('#map_canvas').gmap({'center': yourStartLatLng, 'zoom': 16, 'mapTypeControl': false});
-        $('#map_canvas').gmap('addMarker', {
-            'position': yourStartLatLng,
-            'icon': 'http://cdn.edit.g.imapbuilder.net/images/markers/54'
+            $(map).click(function (event) {
+                findLocation(event.latLng)
+            })
         });
 
         populateMarkersWithJobs();
@@ -180,7 +220,10 @@ if (typeof jQuery !== 'undefined') {
     function positionRetrievalError(error) {
         console.log("Something went wrong: ", error);
         positionRetrievalSuccess(getDefaultCoordinates());
-        alert("Location is not accurate");
+        if (!errorLocationShown){
+            alert("Location is not accurate");
+            errorLocationShown = true;
+        }
     }
 
     /**
@@ -236,7 +279,7 @@ if (typeof jQuery !== 'undefined') {
      * ------------------------ New job creation -----------------------
      */
 
-    // var autocomplete;
+        // var autocomplete;
 
     function initPlacesAutocomplete() {
         var input = document.getElementById('new_task_location');
