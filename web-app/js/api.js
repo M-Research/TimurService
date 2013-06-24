@@ -8,9 +8,15 @@ if (typeof jQuery !== 'undefined') {
      * fields email, rating, name, phone, skype, photo).
      */
     function getProfile(f) {
-        apiCall("GET", "user/profile", function (result) {
-            f(result);
-        });
+        apiCall("GET", "user/profile", f);
+    }
+
+    /**
+     * Retrieves the list of all jobs that current user accepted (but not yet
+     * was approved or finished).
+     */
+    function getAcceptedJobs(callback) {
+        apiCall("GET", "job/listAcceptedJobs", callback);
     }
 
     /**
@@ -21,18 +27,21 @@ if (typeof jQuery !== 'undefined') {
      *     422 - if arguments are incorrect or absent
      */
     function createJobOffer(offerData, callback) {
-        apiCall("POST", "job/create", function (result) {
-            callback(result);
-        }, offerData);
+        apiCall("POST", "job/create", callback, offerData);
     }
 
     /**
      * Accepts Job offer
      */
     function onCreateJobRequest(createRequestData, callback) {
-        apiCall("POST", "job/createRequest", function (result) {
-            callback(result);
-        }, createRequestData);
+        apiCall("POST", "job/createRequest", callback, createRequestData);
+    }
+
+    /**
+     * Cancels accepted job offer.
+     */
+    function cancelOwnJobRequest(data, callback) {
+        apiCall("POST", "job/cancelOwnRequest", callback, data);
     }
 
     /**
@@ -314,5 +323,62 @@ if (typeof jQuery !== 'undefined') {
             .done(function (data) {
                 alert("Profile Updated");
             });
+    }
+
+    /**
+     * -------------------------- User's Tasks -------------------------
+     */
+
+    var STATUS_PENDING = "PENDING";
+    var STATUS_ACCEPTED = "ACCEPTED";
+    var STATUS_DISMISSED = "DISMISSED";
+
+    /**
+     * Returns link to image with solid color of the given request status.
+     * @param status of the job
+     * @returns {color_code}
+     */
+    function getImgForRequestStatus(status) {
+        var colorImg = function (code) {
+            return "http://dummyimage.com/80x80/" + code + "/" + code + ".png";
+        };
+        if (status == STATUS_PENDING) {
+            return colorImg("2ECCFA");
+        } else if (status == STATUS_ACCEPTED) {
+            return colorImg("2EFE64");
+        } else if (status == STATUS_DISMISSED) {
+            return colorImg("FE2E2E");
+        }
+        return colorImg('000000');
+    }
+
+    /**
+     * Renders user's tasks on page.
+     */
+    function initTasks() {
+        getAcceptedJobs(function (data) {
+            var taskList = $("#accepted_tasks_list");
+            taskList.html("");
+            $.each(data, function (i, task) {
+                var el = $("<li/>").attr("data-icon", "false").append(
+                    $("<a/>").append(
+                        $("<img/>").addClass("ul-li-icon").
+                            attr("src", getImgForRequestStatus(task.status)),
+                        $("<h3/>").text(task.job_title),
+                        $("<p/>").text("Status: " + task.status),
+                        $("<p/>").text("Contact: " + task.contact)
+                    ));
+                taskList.append(el);
+                // add cancel request button
+                if (task.status == STATUS_PENDING) {
+                    el.append($("<a/>").attr("href", "#cancelRequest").
+                              click(function () {
+                                  cancelOwnJobRequest(
+                                      {job_id: task.job_id}, initTasks);
+                              }));
+                }
+            });
+            taskList.listview("refresh");
+        });
     }
 }

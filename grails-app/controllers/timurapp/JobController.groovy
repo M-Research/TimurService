@@ -189,6 +189,36 @@ class JobController {
         }
     }
 
+    def cancelOwnRequest() {
+        withAuthentication {
+            def userEmail = authenticationService.getMail()
+            User user = User.findByEmail(userEmail)
+            if (user) {
+                def toRender = []
+                def status = 422
+                if (request.JSON) {
+                    JSONObject obj = request.JSON
+                    Job job = Job.findById(obj?.job_id);
+                    if (job) {
+                        JobRequest req = JobRequest.findByCandidateAndJob(user, job)
+                        if (req) {
+                            req.status = JobRequest.STATUS_DISMISSED;
+                            req.save(flush:true);
+                            toRender = [job: "Request canceled"];
+                            status = 200
+                        }
+                    }
+                }
+
+                render(contentType: "text/json", encoding: "UTF-8",
+                       status: status) {
+                    toRender
+                }
+            } else {
+                render(status: 404, contentType: "text/json", encoding: "UTF-8")
+            }
+        }
+    }
 
     def list() {
         withAuthentication {
@@ -247,9 +277,12 @@ class JobController {
             User user = User.findByEmail(userEmail)
             if (user) {
                 render(contentType: "text/json", encoding: "UTF-8") {
-
-                    JobRequest.findAllByCandidateAndStatusInList(user,[JobRequest.STATUS_PENDING,JobRequest.STATUS_DISMISSED]).collect{
-                        JobRequest a -> [job_id:a.job.id,candidate_id:a.candidate.id,job_title: a.job.title,status:a.status,contact:a.candidate.getContact()]
+                    JobRequest.findAllByCandidateAndStatusInList(
+                        user, [JobRequest.STATUS_PENDING,JobRequest.STATUS_DISMISSED]).collect {
+                        JobRequest a ->
+                            [job_id: a.job.id, candidate_id: a.candidate.id,
+                             job_title: a.job.title, status: a.status,
+                             contact: a.candidate.getContact()]
                     }
                 }
             } else {

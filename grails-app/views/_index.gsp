@@ -104,6 +104,10 @@
 
 <div data-role="page" id="accepted">
 
+    <script type="text/javascript">
+        $("#accepted").on('pageshow', initTasks);
+    </script>
+
     <div data-role="header" data-id="navigbar">
         <div data-role="navbar">
             <ul>
@@ -120,7 +124,9 @@
     <!-- /header -->
 
     <!-- TODO: implement -->
-    <div data-role="content"><h1>Empty list of accepted works</h1></div>
+    <ul data-role="listview" id="accepted_tasks_list"
+        data-split-icon="delete">
+    </ul>
 
 </div>
 
