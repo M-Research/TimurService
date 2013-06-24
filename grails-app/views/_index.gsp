@@ -52,6 +52,9 @@
             <a href="#" data-rel="back" data-role="button" data-theme="a"
                data-icon="delete" data-iconpos="notext"
                class="ui-btn-right">Close</a>
+
+            <input type="hidden" id="det_job_id" value="" />
+
             <h4 id="detTitle">
                 Title:
             </h4>
@@ -67,9 +70,11 @@
             <h4 id="det_valid_until">
               Valid until:
             </h4>
-
+            <h4 id="det_contacts">
+               Contacts:
+            </h4>
             <input type="submit" data-theme="a" data-icon="check" data-iconpos="left"
-                   value="Accept" onClick="$.mobile.changePage('#map-page') ">
+                   value="Accept" onClick="createJobRequest()">
         </div>
     </div>
 

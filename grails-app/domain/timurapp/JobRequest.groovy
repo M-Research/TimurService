@@ -2,7 +2,7 @@ package timurapp
 
 class JobRequest implements Serializable {
 
-    static String STATUS_PENDING = "PENDGING"
+    static String STATUS_PENDING = "PENDING"
     static String STATUS_ACCEPTED = "ACCEPTED"
     static String STATUS_DISMISSED = "DISMISSED"
 

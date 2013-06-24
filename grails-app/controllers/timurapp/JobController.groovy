@@ -61,10 +61,11 @@ class JobController {
                 if(request.JSON!=null ){
                     JSONObject obj = request.JSON
                     if(obj.containsKey("id")){
-                        int id = obj.get("id")
+                        def id = obj.get("id")
                         JobRequest jbrq = new JobRequest();
                         jbrq.candidate = user;
                         jbrq.job = Job.findById(id);
+                        jbrq.dateCreated = new Date();
                         try {
                             if(JobRequest.findByJobAndCandidate(jbrq.job,jbrq.candidate)==null)     {
                                 jbrq.save(flush:true);

@@ -27,6 +27,15 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
+     * Accepts Job offer
+     */
+    function onCreateJobRequest(createRequestData, callback) {
+        apiCall("POST", "job/createRequest", function (result) {
+            callback(result);
+        }, createRequestData);
+    }
+
+    /**
      * Generic call to the API. Executes given function on the result of given
      * method that was invoked with given HTTP method OR on the status code of
      * failed request.
@@ -115,8 +124,9 @@ if (typeof jQuery !== 'undefined') {
     function getInfoWindowContent(job) {
         var html = "Title: " + job.title + " </br> Reward: " + job.reward + "</br>" +
             "<a href=\"#details\" data-rel=\"popup\" data-transition=\"pop\" data-position-to=\"window\" data-inline=\"true\">Show details</a>";
+        $('#det_job_id').val(job.id);
         $('#detTitle').text("Title: " + job.title);
-        $('#det_desc').text("Description: " + job.details);
+        $('#det_desc').text("Description: " + job.description);
         $('#det_address').text("Address: " + job.address);
         $('#det_rew').text("Reward: " + job.reward);
         // TODO render date
@@ -202,6 +212,25 @@ if (typeof jQuery !== 'undefined') {
             }
         });
     }
+
+    /**
+     *  -----------------------Accept Job -------------------------------
+     */
+
+    function createJobRequest() {
+        var request = {}
+        request["id"] = $("#det_job_id").val();
+        onCreateJobRequest(request, function (res) {
+            if (res.error){
+                alert(res.error)
+            } else if (res.jobrequest) {
+                alert(res.jobrequest)
+            } else {
+                alert("Authorization failed");
+            }
+        });
+    }
+
 
     /**
      * ------------------------ New job creation -----------------------
