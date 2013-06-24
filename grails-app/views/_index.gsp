@@ -229,23 +229,7 @@
             <input name="" id="profile_skype" placeholder="" value="" type="text">
         </div>
 
-        <input type="submit" data-icon="plus" data-iconpos="left" value="Update " onclick="submitG()"/>
-
-        <script>
-            function submitG() {
-                var name = $("#profile_name").val()
-                var email = $("#profile_email").val()
-                var phone = $("#profile_phone").val()
-                var skype = $("#profile_skype").val()
-
-                $.post("user/changeProfile",
-                        {name: name, email: email, phone: phone, skype: skype })
-                        .done(function (data) {
-                            alert("Profile Updated");
-                        });
-            }
-            ;
-        </script>
+        <input type="submit" data-icon="plus" data-iconpos="left" value="Update " onclick="submitProfileForm()"/>
     </div>
 </div>
 

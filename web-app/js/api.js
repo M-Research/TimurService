@@ -56,6 +56,12 @@ if (typeof jQuery !== 'undefined') {
     var STATUS_DONE = "DONE";
     var STATUS_CANCELED = "CANCELED";
 
+    /**
+    * gets the icon for a job
+    * @param status of the job
+    * @returns {url pointing to the icon}
+    */
+
     function getIconForStatus(status) {
         var baseURL = 'http://cdn.edit.g.imapbuilder.net/images/markers/';
         var suff = '';
@@ -71,10 +77,12 @@ if (typeof jQuery !== 'undefined') {
 
         return baseURL + suff.toString();
     }
-    //http://cdn.edit.g.imapbuilder.net/images/markers/54
-    //3-gr, 5-blue, 15-red, 46-sign
+
     var locationMarker = null;
 
+    /**
+     * initializes the map
+     */
     function initMapPage() {
         var job = null;
 
@@ -99,18 +107,27 @@ if (typeof jQuery !== 'undefined') {
         }
     }
 
+    /**
+     * buids the content of the marker's baloon
+     * @param job
+     * @returns {string}
+     */
     function getInfoWindowContent(job) {
         var html = "Title: " + job.title + " </br> Reward: " + job.reward + "</br>" +
             "<a href=\"#details\" data-rel=\"popup\" data-transition=\"pop\" data-position-to=\"window\" data-inline=\"true\">Show details</a>";
         $('#detTitle').text("Title: " + job.title);
-        $('#det_desc').text("Description: " + job.description);
+        $('#det_desc').text("Description: " + job.details);
         $('#det_address').text("Address: " + job.address);
         $('#det_rew').text("Reward: " + job.reward);
         // TODO render date
         $('#det_valid_until').text("Valid until: " + job.validUntil);
+        $('#det_contacts').text("Contacts: " + job.contact)
         return html;
     }
 
+    /**
+    * puts markers with all jobs on the map
+    */
     function populateMarkersWithJobs(){
         $.getJSON('job/list', function (data) {
             $.each(data, function (index, element) {
@@ -125,6 +142,11 @@ if (typeof jQuery !== 'undefined') {
         });
     }
 
+    /**
+     * callback when position is retrieved either from GeoLocation API
+     * or through the GPS (available on the supported devices)
+     * @param position
+     */
     function positionRetrievalSuccess(position) {
         if (locationMarker) {
             return;
@@ -141,6 +163,10 @@ if (typeof jQuery !== 'undefined') {
         populateMarkersWithJobs();
     }
 
+    /**
+    * error handling, initialize the map with default coordinates
+    * @param error
+    */
     function positionRetrievalError(error) {
         console.log("Something went wrong: ", error);
         positionRetrievalSuccess(getDefaultCoordinates());
@@ -163,6 +189,18 @@ if (typeof jQuery !== 'undefined') {
         };
 
         return position;
+    }
+
+    var geocoder = new google.maps.Geocoder();
+
+    function codeAddress(address, callback) {
+        geocoder.geocode({ 'address': address}, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                callback(results[0].geometry.location)
+            } else {
+                alert('Geocode was not successful for the following reason: ' + status);
+            }
+        });
     }
 
     /**
@@ -224,5 +262,21 @@ if (typeof jQuery !== 'undefined') {
 
             $('#profile_email').val(res.email);
         });
+    }
+
+    /**
+    * submits the Profile form
+    */
+    function submitProfileForm() {
+        var name = $("#profile_name").val()
+        var email = $("#profile_email").val()
+        var phone = $("#profile_phone").val()
+        var skype = $("#profile_skype").val()
+
+        $.post("user/changeProfile",
+            {name: name, email: email, phone: phone, skype: skype })
+            .done(function (data) {
+                alert("Profile Updated");
+            });
     }
 }
