@@ -239,21 +239,19 @@ class JobController {
 
                     //request.JSON
                     //idsss(id:id)
-                    Job.findAll(sort:"dateCreated", order: "desc").collect{
-                        Job a -> [id:a.id, title: a.title, reward:a.reward,
-                                  longitude:a.longitude, latitude:a.latitude,
-                                  description: a.description,
-                                  address: a.address,
-                                  status: a.status, validUntil: a.validUntil,
-                                  contact: a.user.getContact()]
+                    if (params.id) {
+                        job = Job.findById(params.id)
+                        renderJob(job)
+                    } else {
+                        Job.findAll(sort:"dateCreated", order: "desc").collect { renderJob(it) }
                     }
                 }
             } else {
                 render(status: 404, contentType: "text/json", encoding: "UTF-8")
             }
         }
-
     }
+
     def listOffers(){
         withAuthentication {
             def userEmail = authenticationService.getMail()
@@ -342,6 +340,15 @@ class JobController {
         }
 
     }
+
+    private def renderJob(Job a) {
+        [id:a.id, title: a.title, reward: a.reward,
+         longitude: a.longitude, latitude: a.latitude,
+         description: a.description, address: a.address,
+         status: a.status, validUntil: a.validUntil,
+         contact: a.user.getContact()]
+    }
+
 
     private def withAuthentication(Closure f) {
         if (authenticationService.isAuthenticated()) {

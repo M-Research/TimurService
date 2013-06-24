@@ -12,6 +12,13 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
+     * Retrieves detailed information about the job with given ID.
+     */
+    function getJob(id, callback) {
+        apiCall("GET", "job/list/" + id, callback);
+    }
+
+    /**
      * Retrieves the list of all jobs that current user accepted (but not yet
      * was approved or finished).
      */
@@ -140,7 +147,7 @@ if (typeof jQuery !== 'undefined') {
         $('#det_rew').text("Reward: " + job.reward);
         // TODO render date
         $('#det_valid_until').text("Valid until: " + job.validUntil);
-        $('#det_contacts').text("Contacts: " + job.contact)
+        $('#det_contacts').text("Contacts: " + job.contact);
         return html;
     }
 
@@ -367,7 +374,28 @@ if (typeof jQuery !== 'undefined') {
                         $("<h3/>").text(task.job_title),
                         $("<p/>").text("Status: " + task.status),
                         $("<p/>").text("Contact: " + task.contact)
-                    ));
+                    ).click(function () {
+                        getJob(task.job_id, function (r) {
+                            job = r.job;
+                            // TODO DRY
+                            $('#tasks_det_job_id').val(job.id);
+                            $('#tasks_det_title').text("Title: " + job.title);
+                            $('#tasks_det_desc').text("Description: " +
+                                                      job.description);
+                            $('#tasks_det_status').text("Status: " +
+                                                      task.status);
+                            $('#tasks_det_address').text("Address: " +
+                                                         job.address);
+                            $('#tasks_det_rew').text("Reward: " + job.reward);
+                            // TODO render date
+                            $('#tasks_det_valid_until').text("Valid until: " +
+                                                             job.validUntil);
+                            $('#tasks_det_contacts').text("Contacts: " +
+                                                          task.contact);
+                            $("#task_list_details").popup("open");
+
+                        });
+                    }));
                 taskList.append(el);
                 // add cancel request button
                 if (task.status == STATUS_PENDING) {

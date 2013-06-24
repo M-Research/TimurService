@@ -128,6 +128,36 @@
         data-split-icon="delete">
     </ul>
 
+    <div data-role="popup" id="task_list_details">
+        <a href="#" data-rel="back" data-role="button" data-theme="a"
+           data-icon="delete" data-iconpos="notext"
+           class="ui-btn-right">Close</a>
+
+        <input type="hidden" id="det_job_id" value="" />
+
+        <h4 id="tasks_det_title">
+            Title:
+        </h4>
+        <h4 id="tasks_det_desc">
+            Description:
+        </h4>
+        <h4 id="tasks_det_status">
+            Status:
+        </h4>
+        <h4 id="tasks_det_rew">
+            Reward:
+        </h4>
+        <h4 id="tasks_det_address">
+            Address:
+        </h4>
+        <h4 id="tasks_det_valid_until">
+            Valid until:
+        </h4>
+        <h4 id="tasks_det_contacts">
+            Contacts:
+        </h4>
+    </div>
+
 </div>
 
 <div data-role="page" id="addwork">
