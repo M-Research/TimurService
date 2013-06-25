@@ -25,10 +25,10 @@ class User {
     }
 
     def getContact(){
-        return "User: "+email
-                name==null?:" Name: "+name
-                phone==null?:" Phone: "+phone
-                skype==null?:" Skype: "+skype
+        return email
+        /*name==null?:" Name: "+name
+          phone==null?:" Phone: "+phone
+          skype==null?:" Skype: "+skype*/
 
     }
     def getRating(){
@@ -50,4 +50,3 @@ class User {
 
 
 }
-

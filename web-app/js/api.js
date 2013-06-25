@@ -37,6 +37,7 @@ if (typeof jQuery !== 'undefined') {
         apiCall("POST", "job/create", callback, offerData);
     }
 
+    // TODO maybe this should use DELETE
     /**
      * Accepts Job offer
      */
@@ -440,14 +441,16 @@ if (typeof jQuery !== 'undefined') {
                         });
                     }));
                 taskList.append(el);
-                // add cancel request button
-                if (task.status == STATUS_PENDING) {
-                    el.append($("<a/>").attr("href", "#cancelRequest").
-                              click(function () {
-                                  cancelOwnJobRequest(
-                                      {job_id: task.job_id}, initTasks);
-                              }));
-                }
+                // add delete request button
+                el.append($("<a/>").attr("href", "#deleteRequest").
+                          click(function () {
+                              cancelOwnJobRequest(
+                                  {job_id: task.job_id},
+                                  function (res) {
+                                      el.remove();
+                                  });
+                          }));
+
             });
             taskList.listview("refresh");
         });

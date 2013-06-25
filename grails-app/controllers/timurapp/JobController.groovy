@@ -202,9 +202,8 @@ class JobController {
                     if (job) {
                         JobRequest req = JobRequest.findByCandidateAndJob(user, job)
                         if (req) {
-                            req.status = JobRequest.STATUS_DISMISSED;
-                            req.save(flush:true);
-                            toRender = [job: "Request canceled"];
+                            req.delete(flush:true)
+                            toRender = [job: "Request deleted"]
                             status = 200
                         }
                     }
