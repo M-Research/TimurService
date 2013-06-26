@@ -28,6 +28,20 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
+     * Retrieves the list of all jobs that current user was approved for.
+     */
+    function getApprovedJobs(callback) {
+        apiCall("GET", "job/listApprovedJobs", callback);
+    }
+
+    /**
+     * Retrieves the list of all jobs that current user was approved for.
+     */
+    function getFinishedJobs(callback) {
+        apiCall("GET", "job/listFinishedJobsByUser", callback);
+    }
+
+    /**
      * Retrieves the list of all jobs that current user created
      * with basic information.
      */
@@ -596,75 +610,102 @@ if (typeof jQuery !== 'undefined') {
     var STATUS_ACCEPTED = "ACCEPTED";
     var STATUS_DISMISSED = "DISMISSED";
 
-    /**
-     * Returns link to image with solid color of the given request status.
-     * @param status of the job
-     * @returns {color_code}
-     */
-    function getImgForRequestStatus(status) {
-        var colorImg = function (code) {
-            return "http://dummyimage.com/80x80/" + code + "/" + code + ".png";
-        };
-        if (status == STATUS_PENDING) {
-            return colorImg("2ECCFA");
-        } else if (status == STATUS_ACCEPTED) {
-            return colorImg("2EFE64");
-        } else if (status == STATUS_DISMISSED) {
-            return colorImg("FE2E2E");
+    function getThemeForTask(status) {
+        var theme;
+        switch (status) {
+        case STATUS_ACCEPTED:
+            theme = getTheme(STATUS_APPROVED);
+            break;
+        case STATUS_DISMISSED:
+            theme = getTheme(STATUS_CANCELED);
+            break;
+        case STATUS_PENDING:
+            theme = getTheme(STATUS_OPEN);
+            break;
+        case STATUS_DONE:
+            theme = getTheme(STATUS_DONE);
+            break;
+        default:
+            theme = getTheme(status);
+            break;
         }
-        return colorImg('000000');
+        return theme;
     }
 
     /**
      * Renders user's tasks on page.
      */
     function initTasks() {
-        getAcceptedJobs(function (data) {
-            var taskList = $("#accepted_tasks_list");
-            taskList.html("");
-            $.each(data, function (i, task) {
-                var el = $("<li/>").attr("data-icon", "false").append(
-                    $("<a/>").append(
-                            $("<img/>").addClass("ul-li-icon").
-                                attr("src", getImgForRequestStatus(task.status)),
-                            $("<h3/>").text(task.job_title),
-                            $("<p/>").text("Status: " + task.status),
-                            $("<p/>").text("Contact: " + task.contact)
-                        ).click(function () {
-                            getJob(task.job_id, function (r) {
-                                job = r.job;
-                                // TODO DRY
-                                $('#tasks_det_job_id').val(job.id);
-                                $('#tasks_det_title').text("Title: " + job.title);
-                                $('#tasks_det_desc').text("Description: " +
-                                    job.description);
-                                $('#tasks_det_status').text("Status: " +
-                                    task.status);
-                                $('#tasks_det_address').text("Address: " +
-                                    job.address);
-                                $('#tasks_det_rew').text("Reward: " + job.reward);
-                                // TODO render date
-                                $('#tasks_det_valid_until').text("Valid until: " +
-                                    job.validUntil);
-                                $('#tasks_det_contacts').text("Contacts: " +
-                                    task.contact);
-                                $("#task_list_details").popup("open");
-
-                            });
-                        }));
-                taskList.append(el);
-                // add delete request button
-                el.append($("<a/>").attr("href", "#deleteRequest").
-                    click(function () {
-                        cancelOwnJobRequest(
-                            {job_id: task.job_id},
-                            function (res) {
-                                el.remove();
-                            });
-                    }));
-
-            });
-            taskList.listview("refresh");
+        var taskList = $("#accepted_tasks_list");
+        taskList.html("");
+        var renderer = function (data) { renderUserTasks(taskList, data); };
+        getAcceptedJobs(renderer);
+        getApprovedJobs(renderer);
+        getFinishedJobs(function (data) {
+            renderFinishedJobs(taskList, data);
         });
+    }
+
+    /**
+     * Adds all tasks from data to given taskList DOM element.
+     */
+    function renderUserTasks(taskList, data) {
+        $.each(data, function (i, task) {
+            var el = createTaskListElement(task);
+            taskList.append(el);
+            // add delete request button
+            el.append($("<a/>").attr("href", "#deleteRequest").
+                      click(function () {
+                          cancelOwnJobRequest(
+                              {job_id: task.job_id},
+                              function (res) {
+                                  el.remove();
+                              });
+                      }));
+
+        });
+        taskList.listview("refresh");
+    }
+
+    /**
+     * Adds all finished jobs from data to given taskList DOM element.
+     */
+    function renderFinishedJobs(taskList, data) {
+        var status = STATUS_DONE;
+        $.each(data, function (i, job) {
+            job.job_title = job.name;
+            job.status = status;
+            job.job_id = job.id;
+            var el = createTaskListElement(job);
+            taskList.append(el);
+        });
+        taskList.listview("refresh");
+    }
+
+    function createTaskListElement(data) {
+        return $("<li/>").attr("data-icon", "false").
+            attr("data-theme", getThemeForTask(data.status)).append(
+                $("<a/>").append(
+                    $("<h3/>").text(data.job_title),
+                    $("<p/>").text("Status: " + data.status),
+                    $("<p/>").text("Contact: " + data.contact)
+                ).click(function () {
+                    getJob(data.job_id, function (r) {
+                        var job = r.job;
+                        renderDetailsPopup(data.status, data.contact, job);
+                    });
+                }));
+    }
+
+    function renderDetailsPopup(status, contact, data) {
+        $('#tasks_det_job_id').val(data.id);
+        $('#tasks_det_title').text("Title: " + data.title);
+        $('#tasks_det_desc').text("Description: " + data.description);
+        $('#tasks_det_status').text("Status: " + status);
+        $('#tasks_det_address').text("Address: " + data.address);
+        $('#tasks_det_rew').text("Reward: " + data.reward);
+        $('#tasks_det_valid_until').text("Valid until: " + data.validUntil);
+        $('#tasks_det_contacts').text("Contacts: " + contact);
+        $("#task_list_details").popup("open");
     }
 }

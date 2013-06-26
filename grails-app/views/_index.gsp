@@ -178,9 +178,10 @@
     </div>
     <!-- /header -->
 
-    <!-- TODO: implement -->
-    <ul data-role="listview" id="accepted_tasks_list" data-split-icon="delete">
-    </ul>
+    <div data-role="content">
+      <ul data-role="listview" id="accepted_tasks_list" data-split-icon="delete">
+      </ul>
+    </div>
 
     <div data-role="popup" id="task_list_details">
         <a href="#" data-rel="back" data-role="button" data-theme="a"

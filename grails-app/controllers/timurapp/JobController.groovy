@@ -145,6 +145,11 @@ class JobController {
                         job.status = Job.STATUS_DONE;
                         job.finishRate = rate;
                         job.save(flush: true);
+                        // TODO delete or move to next state?
+                        JobRequest.findAllByJob(job).collect {
+                            JobRequest rq ->
+                                rq.delete(flush: true)
+                        };
                         toRender = [job: "Done"];
                     }
                 }
