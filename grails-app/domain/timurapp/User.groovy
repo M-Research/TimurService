@@ -10,7 +10,7 @@ class User {
 
     //List<Job> jobs
     //SortedSet joboffers
-    static hasMany = [jobs:Job, jobOffers:JobRequest]
+    static hasMany = [jobs: Job, jobOffers: JobRequest]
     static mappedBy = [jobs: "user"]
 
 
@@ -24,29 +24,39 @@ class User {
 
     }
 
-    def getContact(){
-        return email
-        /*name==null?:" Name: "+name
-          phone==null?:" Phone: "+phone
-          skype==null?:" Skype: "+skype*/
-
+    def getContact() {
+        def ret = ""
+        if (email) {
+            ret += "User: " + email
+        }
+        if (name) {
+            ret += " Name: " + name
+        }
+        if (phone) {
+            ret += " Phone: " + phone
+        }
+        if (skype) {
+            ret += " Skype: " + skype
+        }
+        return ret
     }
-    def getRating(){
+
+    def getRating() {
         double sum;
         int count;
-        Job.findAllByStatus(Job.STATUS_DONE).collect{
+        Job.findAllByStatus(Job.STATUS_DONE).collect {
             Job jb ->
-                sum+=jb.finishRate;
+                sum += jb.finishRate;
                 count++;
         }
-        if(count!=0){
-            return sum/(double)count;
+        if (count != 0) {
+            return sum / (double) count;
         }
         return 0;
     }
+
     static transients = ['contact']
 
 
-
-
 }
+

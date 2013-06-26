@@ -1,4 +1,5 @@
 if (typeof jQuery !== 'undefined') {
+
     /**
      * ------------------------------ API ------------------------------
      */
@@ -27,6 +28,42 @@ if (typeof jQuery !== 'undefined') {
     }
 
     /**
+     * Retrieves the list of all jobs that current user created
+     * with basic information.
+     */
+    function getJobOffers(callback) {
+        apiCall("GET", "job/listJobsForUserLight", callback);
+    }
+
+    /**
+     * gets all the requests for the job
+     */
+    function listRequestsForJob(data, callback) {
+        apiCall("POST", "job/listRequestsForJob", callback, data);
+    }
+
+    /**
+     * gets all approved requests for the job
+     */
+    function listApprovedRequestsForJob(data, callback) {
+        apiCall("POST", "job/listApprovedRequestsForJob", callback, data);
+    }
+
+    /**
+     * finishes the job
+     */
+    function finish(data, callback) {
+        apiCall("POST", "job/finish", callback, data);
+    }
+
+    /**
+     * approves the request
+     */
+    function approveRequest(data, callback) {
+        apiCall("POST", "job/approveRequest", callback, data);
+    }
+
+    /**
      * Creates a new job offer described in given offerData and calls the
      * given callback on received result. Result is either empty or failure
      * status code:
@@ -37,12 +74,18 @@ if (typeof jQuery !== 'undefined') {
         apiCall("POST", "job/create", callback, offerData);
     }
 
-    // TODO maybe this should use DELETE
     /**
      * Accepts Job offer
      */
     function onCreateJobRequest(createRequestData, callback) {
         apiCall("POST", "job/createRequest", callback, createRequestData);
+    }
+
+    /**
+     * Cancels job offer.
+     */
+    function onCancelJobRequest(data, callback) {
+        apiCall("POST", "job/cancel", callback, data);
     }
 
     /**
@@ -106,12 +149,12 @@ if (typeof jQuery !== 'undefined') {
 
     var locationMarker = null;
     var errorLocationShown = false;
+
     /**
      * initializes the map
      */
     function initMapPage() {
         var job = null;
-
         if (geo_position_js.init()) {
             geo_position_js.getCurrentPosition(positionRetrievalSuccess, positionRetrievalError);
         } else if (navigator.geolocation) {
@@ -129,7 +172,7 @@ if (typeof jQuery !== 'undefined') {
             }
         } else {
             positionRetrievalSuccess(getDefaultCoordinates());
-            if (!errorLocationShown){
+            if (!errorLocationShown) {
                 alert("Location is not accurate");
                 errorLocationShown = true;
             }
@@ -144,7 +187,7 @@ if (typeof jQuery !== 'undefined') {
     function getInfoWindowContent(job) {
         var html = "Title: " + job.title + " </br> Reward: " + job.reward + "</br>" +
             "<a href=\"#details\" data-rel=\"popup\" data-transition=\"pop\" data-position-to=\"window\" data-inline=\"true\">Show details</a>";
-        $('#det_job_id').val(job.id);
+        $('#map_det_job_id').val(job.id);
         $('#detTitle').text("Title: " + job.title);
         $('#det_desc').text("Description: " + job.description);
         $('#det_address').text("Address: " + job.address);
@@ -185,7 +228,7 @@ if (typeof jQuery !== 'undefined') {
                     headerText: false,
                     headerClose: false,
                     buttonPrompt: 'Do you want to add new task here?',
-                    buttons : {
+                    buttons: {
                         'OK': {
                             click: function () {
                                 $.mobile.changePage('#addwork');
@@ -193,7 +236,8 @@ if (typeof jQuery !== 'undefined') {
                             }
                         },
                         'Cancel': {
-                            click: function () {},
+                            click: function () {
+                            },
                             icon: "delete",
                             theme: "c"
                         }
@@ -222,10 +266,10 @@ if (typeof jQuery !== 'undefined') {
                     'icon': 'http://cdn.edit.g.imapbuilder.net/images/markers/54'
                 });
 
-            $(map).click(function (event) {
-                findLocation(event.latLng)
-            })
-        });
+                $(map).click(function (event) {
+                    findLocation(event.latLng)
+                })
+            });
 
         populateMarkersWithJobs();
     }
@@ -237,7 +281,7 @@ if (typeof jQuery !== 'undefined') {
     function positionRetrievalError(error) {
         console.log("Something went wrong: ", error);
         positionRetrievalSuccess(getDefaultCoordinates());
-        if (!errorLocationShown){
+        if (!errorLocationShown) {
             alert("Location is not accurate");
             errorLocationShown = true;
         }
@@ -279,7 +323,7 @@ if (typeof jQuery !== 'undefined') {
 
     function createJobRequest() {
         var request = {}
-        request["id"] = $("#det_job_id").val();
+        request["id"] = $("#map_det_job_id").val();
         onCreateJobRequest(request, function (res) {
             if (res.error) {
                 alert(res.error)
@@ -291,6 +335,174 @@ if (typeof jQuery !== 'undefined') {
         });
     }
 
+    /**
+     * ----------------------Job Offers ----------------------------------
+     */
+
+    function getTextForTask(req) {
+        var stat = req.status;
+        var message = req.title + " (";
+        switch (stat) {
+            case STATUS_APPROVED:
+                message += req.employee_info + " Approved"
+                break;
+            case STATUS_CANCELED:
+                message += "Job is cancelled"
+                break;
+            case STATUS_OPEN:
+                message += req.numOfWorkers + " Users Accepted"
+                break;
+            case STATUS_DONE:
+                message += "Job is finished"
+                break;
+            default:
+                break;
+        }
+        message += ")";
+        return message;
+    }
+
+    function getTheme(status) {
+        var theme = "e"
+        switch (status) {
+            case STATUS_APPROVED:
+                theme = "b"
+                break
+            case STATUS_CANCELED:
+                theme = "c"
+                break;
+            case STATUS_OPEN:
+                theme = "e"
+                break;
+            case STATUS_DONE:
+                theme = "a"
+                break;
+            default:
+                break;
+        }
+        return theme
+    }
+
+    function cancelJobRequest() {
+        var id = $("#offers_det_job_id").val();
+        onCancelJobRequest({job_id: id}, function (data) {
+            alert("Job cancelled");
+            initAdded();
+        })
+    }
+
+
+    function populate(offer, el) {
+
+        if (offer.status == STATUS_OPEN) {
+            listRequestsForJob({id: offer.job_id}, function (data) {
+                var lst = $("<ul/>").attr("data-role", "listview").attr("data-split-icon", "check").attr("data-mini", "true");
+
+                $.each(data, function (i, req) {
+                    var eli = $("<li/>").append(
+                        $("<a/>").append($("<h4/>").text("User: " + req.info + " with rating " + req.rating)));
+
+                    eli.append($("<a/>").attr("href", "#approveRequest").
+                        click(function () {
+                            approveRequest({job_id: offer.job_id, candidate_id: req.candidate_id}, function () {
+                                alert("Job approved");
+                                initAdded();
+                            })
+                        })
+                    );
+
+                    lst.append(eli);
+                });
+
+                el.append(lst);
+                el.trigger("create")
+                lst.listview("refresh");
+            });
+        } else if (offer.status == STATUS_APPROVED) {
+            listApprovedRequestsForJob({id: offer.job_id}, function (data) {
+                var lst = $("<ul/>").attr("data-role", "listview").attr("data-split-icon", "star").attr("data-mini", "true");
+
+                $.each(data, function (i, req) {
+                    var eli = $("<li/>").append(
+                        $("<a/>").append($("<h4/>").text("User: " + req.info + " with rating " + req.rating)));
+
+                    eli.append($("<a/>").attr("href", "#").
+                        click(function () {
+                            $("#evaluate_job_id").val(offer.job_id);
+                            $("#evaluate_job").popup("open");
+                        })
+                    );
+
+                    lst.append(eli);
+                });
+
+                el.append(lst);
+                el.trigger("create")
+                lst.listview("refresh");
+            });
+        }
+    }
+
+    function evaluateJob() {
+        var rating = $('#star-job').raty('score');
+        if (rating == undefined) {
+            rating = 0;
+        }
+        var job_id = parseInt($("#evaluate_job_id").val());
+
+        finish({rating: rating, job_id: job_id}, function () {
+            $("#evaluate_job").popup("close");
+            initAdded();
+        });
+    }
+
+    function initAdded() {
+        $('#star-job').raty({ score: 4 });
+        var addedEl = $("#added-coll")
+        addedEl.children().remove();
+        var tmpEl;
+
+        getJobOffers(function (data) {
+            $.each(data, function (i, offer) {
+                tmpEl = $("<div/>").attr("data-role", "collapsible").attr("id", "offer_" + offer.job_id).attr("data-theme", getTheme(offer.status)).
+                    append($("<h3/>").attr("data-position", "inline").text(getTextForTask(offer)).
+                        append($("<span/>").addClass("button-span").
+                            append($("<a/>").addClass("details").attr("href", "#added").attr("data-role", "button").
+                                attr("data-inline", "true").attr("data-icon", "gear").
+                                attr("data-icon", "gear").attr("data-icon", "gear").
+                                attr("id", "show-content").attr("data-iconpos", "notext")
+                                .click(function (e) {
+                                    getJob(offer.job_id, function (r) {
+                                        job = r.job;
+
+                                        $('#offers_det_job_id').val(job.id);
+                                        $('#offers_det_title').text("Title: " + job.title);
+                                        $('#offers_det_desc').text("Description: " +
+                                            job.description);
+                                        $('#offers_det_status').text("Status: " +
+                                            offer.status);
+                                        $('#offers_det_address').text("Address: " +
+                                            job.address);
+                                        $('#offers_det_rew').text("Reward: " + job.reward);
+                                        $('#offers_det_valid_until').text("Valid until: " +
+                                            job.validUntil);
+
+                                        $("#offers_details").popup("open");
+                                    });
+                                    e.stopPropagation();
+                                    e.stopImmediatePropagation();
+                                })
+
+                            )));
+
+                var contentDiv = $("<div/>");
+                tmpEl.append(contentDiv);
+                populate(offer, contentDiv);
+                addedEl.append(tmpEl);
+            });
+            addedEl.trigger("create");
+        });
+    }
 
     /**
      * ------------------------ New job creation -----------------------
@@ -413,43 +625,43 @@ if (typeof jQuery !== 'undefined') {
             $.each(data, function (i, task) {
                 var el = $("<li/>").attr("data-icon", "false").append(
                     $("<a/>").append(
-                        $("<img/>").addClass("ul-li-icon").
-                            attr("src", getImgForRequestStatus(task.status)),
-                        $("<h3/>").text(task.job_title),
-                        $("<p/>").text("Status: " + task.status),
-                        $("<p/>").text("Contact: " + task.contact)
-                    ).click(function () {
-                        getJob(task.job_id, function (r) {
-                            job = r.job;
-                            // TODO DRY
-                            $('#tasks_det_job_id').val(job.id);
-                            $('#tasks_det_title').text("Title: " + job.title);
-                            $('#tasks_det_desc').text("Description: " +
-                                                      job.description);
-                            $('#tasks_det_status').text("Status: " +
-                                                      task.status);
-                            $('#tasks_det_address').text("Address: " +
-                                                         job.address);
-                            $('#tasks_det_rew').text("Reward: " + job.reward);
-                            // TODO render date
-                            $('#tasks_det_valid_until').text("Valid until: " +
-                                                             job.validUntil);
-                            $('#tasks_det_contacts').text("Contacts: " +
-                                                          task.contact);
-                            $("#task_list_details").popup("open");
+                            $("<img/>").addClass("ul-li-icon").
+                                attr("src", getImgForRequestStatus(task.status)),
+                            $("<h3/>").text(task.job_title),
+                            $("<p/>").text("Status: " + task.status),
+                            $("<p/>").text("Contact: " + task.contact)
+                        ).click(function () {
+                            getJob(task.job_id, function (r) {
+                                job = r.job;
+                                // TODO DRY
+                                $('#tasks_det_job_id').val(job.id);
+                                $('#tasks_det_title').text("Title: " + job.title);
+                                $('#tasks_det_desc').text("Description: " +
+                                    job.description);
+                                $('#tasks_det_status').text("Status: " +
+                                    task.status);
+                                $('#tasks_det_address').text("Address: " +
+                                    job.address);
+                                $('#tasks_det_rew').text("Reward: " + job.reward);
+                                // TODO render date
+                                $('#tasks_det_valid_until').text("Valid until: " +
+                                    job.validUntil);
+                                $('#tasks_det_contacts').text("Contacts: " +
+                                    task.contact);
+                                $("#task_list_details").popup("open");
 
-                        });
-                    }));
+                            });
+                        }));
                 taskList.append(el);
                 // add delete request button
                 el.append($("<a/>").attr("href", "#deleteRequest").
-                          click(function () {
-                              cancelOwnJobRequest(
-                                  {job_id: task.job_id},
-                                  function (res) {
-                                      el.remove();
-                                  });
-                          }));
+                    click(function () {
+                        cancelOwnJobRequest(
+                            {job_id: task.job_id},
+                            function (res) {
+                                el.remove();
+                            });
+                    }));
 
             });
             taskList.listview("refresh");
